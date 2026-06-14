@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لمى العمودي · مهندسة ذكاء اصطناعي</title>
+<meta name="description" content="الموقع الشخصي للمى محمد العمودي — خريجة علوم حاسب الأولى على دفعتها، متخصصة في الذكاء الاصطناعي والتعلم العميق.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e14;
+  --bg-soft:#111722;
+  --panel:#151c28;
+  --ink:#eef2f7;
+  --muted:#8b97a8;
+  --gold:#e0b15e;
+  --gold-soft:#f0d091;
+  --green:#3ecf8e;
+  --green-deep:#1f7a55;
+  --line:rgba(224,177,94,.18);
+  --display:"Space Grotesk", "Tajawal", sans-serif;
+  --body:"Tajawal", sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:#0a0e14}
+
+/* ---------- Neural network canvas ---------- */
+#neural{
+  position:fixed;inset:0;z-index:0;
+  opacity:.55;
+}
+.bg-glow{
+  position:fixed;z-index:0;border-radius:50%;filter:blur(120px);pointer-events:none;
+}
+.glow-1{top:-200px;left:-150px;width:500px;height:500px;background:rgba(62,207,142,.10)}
+.glow-2{bottom:-200px;right:-150px;width:600px;height:600px;background:rgba(224,177,94,.10)}
+
+/* ---------- Layout ---------- */
+.wrap{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:0 24px}
+section{position:relative;z-index:2;padding:90px 0}
+
+/* ---------- Nav ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 28px;
+  backdrop-filter:blur(12px);
+  background:rgba(10,14,20,.55);
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:.3s;
+}
+nav .logo{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:.5px}
+nav .logo span{color:var(--gold)}
+nav .links{display:flex;gap:26px;font-size:.92rem;font-weight:500}
+nav .links a{color:var(--muted);transition:.2s;position:relative}
+nav .links a:hover{color:var(--gold)}
+.nav-toggle{display:none;background:none;border:none;color:var(--ink);font-size:1.4rem;cursor:pointer}
+
+/* ---------- Hero ---------- */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:80px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--display);font-size:.8rem;letter-spacing:1px;
+  color:var(--green);text-transform:uppercase;
+  border:1px solid rgba(62,207,142,.3);border-radius:100px;
+  padding:6px 16px;margin-bottom:26px;width:fit-content;
+  background:rgba(62,207,142,.05);
+}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.hero h1{
+  font-size:clamp(2.6rem,7vw,5rem);
+  font-weight:900;line-height:1.05;letter-spacing:-1px;
+  margin-bottom:20px;
+}
+.hero h1 .grad{
+  background:linear-gradient(120deg,var(--gold-soft),var(--gold) 50%,var(--green));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero .role{font-family:var(--display);font-size:clamp(1.05rem,2.5vw,1.5rem);color:var(--ink);font-weight:500;margin-bottom:8px;direction:ltr;text-align:right}
+.hero p.lead{max-width:600px;color:var(--muted);font-size:1.08rem;margin:18px 0 34px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.btn{
+  font-family:var(--display);font-weight:600;font-size:.95rem;
+  padding:13px 26px;border-radius:12px;cursor:pointer;transition:.25s;border:1px solid transparent;
+  display:inline-flex;align-items:center;gap:9px;
+}
+.btn-primary{background:linear-gradient(120deg,var(--gold),var(--gold-soft));color:#0a0e14}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(224,177,94,.3)}
+.btn-ghost{border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-3px)}
+
+.hero-stats{display:flex;gap:40px;margin-top:56px;flex-wrap:wrap}
+.stat .num{font-family:var(--display);font-size:2.2rem;font-weight:700;color:var(--gold);line-height:1}
+.stat .lbl{color:var(--muted);font-size:.88rem;margin-top:6px}
+
+/* ---------- Section heading ---------- */
+.sec-head{margin-bottom:48px}
+.sec-head .tag{font-family:var(--display);color:var(--green);font-size:.82rem;letter-spacing:2px;text-transform:uppercase}
+.sec-head h2{font-size:clamp(1.8rem,4vw,2.7rem);font-weight:800;margin-top:10px;letter-spacing:-.5px}
+.sec-head .line{width:60px;height:3px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:16px;border-radius:3px}
+
+/* ---------- About ---------- */
+.about-grid{display:grid;grid-template-columns:.9fr 1.3fr;gap:48px;align-items:center}
+.photo-frame{
+  position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/5;
+  border:1px solid var(--line);background:var(--panel);
+}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-placeholder{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--muted);text-align:center;gap:12px;padding:20px;
+  background:linear-gradient(160deg,rgba(224,177,94,.06),rgba(62,207,142,.06));
+}
+.photo-placeholder .ico{font-size:2.4rem;opacity:.5}
+.about-text p{color:var(--muted);margin-bottom:18px;font-size:1.05rem}
+.about-text strong{color:var(--gold);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.chip{font-size:.85rem;padding:7px 15px;border-radius:100px;border:1px solid var(--line);color:var(--ink);background:rgba(224,177,94,.04)}
+
+/* ---------- Project highlight ---------- */
+.project-card{
+  background:linear-gradient(160deg,var(--panel),var(--bg-soft));
+  border:1px solid var(--line);border-radius:24px;padding:42px;
+  position:relative;overflow:hidden;
+}
+.project-card::before{
+  content:"";position:absolute;top:-60px;left:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(62,207,142,.18),transparent 70%);
+}
+.project-card .ptitle{font-family:var(--display);font-size:1.6rem;font-weight:700;color:var(--gold-soft);margin-bottom:6px}
+.project-card .psub{color:var(--muted);margin-bottom:30px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:28px}
+.feat{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px;transition:.25s}
+.feat:hover{border-color:var(--green);transform:translateY(-4px)}
+.feat .fi{font-size:1.5rem;margin-bottom:10px}
+.feat h4{font-family:var(--display);font-size:1rem;margin-bottom:8px;color:var(--ink)}
+.feat p{color:var(--muted);font-size:.9rem}
+.tech-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.tech-row .t{font-family:var(--display);font-size:.78rem;padding:5px 12px;border-radius:7px;background:rgba(62,207,142,.1);color:var(--green);border:1px solid rgba(62,207,142,.2)}
+
+/* ---------- Skills ---------- */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.skill-block h3{font-family:var(--display);font-size:1.1rem;margin-bottom:20px;color:var(--gold);display:flex;align-items:center;gap:10px}
+.bar{margin-bottom:18px}
+.bar .bhead{display:flex;justify-content:space-between;margin-bottom:7px;font-size:.92rem}
+.bar .bhead .pct{color:var(--muted);font-family:var(--display);font-size:.82rem}
+.bar .track{height:8px;background:rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+.bar .fill{height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,var(--green-deep),var(--green));transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.bar.gold .fill{background:linear-gradient(90deg,var(--gold),var(--gold-soft))}
+
+/* ---------- Timeline ---------- */
+.tl{position:relative;padding-right:30px}
+.tl::before{content:"";position:absolute;right:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--gold),var(--green),transparent)}
+.tl-item{position:relative;padding:0 0 34px 0;}
+.tl-item::before{content:"";position:absolute;right:-30px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--gold);box-shadow:0 0 0 4px rgba(224,177,94,.12)}
+.tl-item.green::before{border-color:var(--green);box-shadow:0 0 0 4px rgba(62,207,142,.12)}
+.tl-date{font-family:var(--display);font-size:.8rem;color:var(--green);letter-spacing:1px;text-transform:uppercase}
+.tl-item h4{font-size:1.12rem;margin:6px 0;font-weight:700}
+.tl-item .org{color:var(--gold-soft);font-size:.92rem;margin-bottom:6px}
+.tl-item p{color:var(--muted);font-size:.93rem}
+.badge-dist{display:inline-block;font-size:.72rem;font-family:var(--display);padding:3px 9px;border-radius:6px;background:rgba(62,207,142,.12);color:var(--green);margin-right:8px;border:1px solid rgba(62,207,142,.25)}
+
+.cert-extra{margin-top:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.cert-mini{background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:18px}
+.cert-mini h5{font-family:var(--display);font-size:.95rem;color:var(--gold);margin-bottom:6px}
+.cert-mini p{color:var(--muted);font-size:.85rem}
+
+/* ---------- Contact ---------- */
+.contact{text-align:center}
+.contact h2{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;margin-bottom:16px}
+.contact .grad{background:linear-gradient(120deg,var(--gold-soft),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+.contact p{color:var(--muted);max-width:520px;margin:0 auto 36px;font-size:1.08rem}
+.contact-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.clink{
+  display:flex;align-items:center;gap:10px;padding:14px 22px;border-radius:14px;
+  border:1px solid var(--line);background:var(--panel);transition:.25s;font-weight:500;font-size:.95rem;
+}
+.clink:hover{border-color:var(--gold);transform:translateY(-4px);background:rgba(224,177,94,.06)}
+.clink .ci{font-size:1.2rem}
+
+footer{text-align:center;padding:40px 0;color:var(--muted);font-size:.85rem;border-top:1px solid rgba(255,255,255,.04);position:relative;z-index:2}
+
+/* reveal animation */
+.reveal{opacity:0;transform:translateY(36px);transition:.8s cubic-bezier(.2,.8,.2,1)}
+.reveal.show{opacity:1;transform:none}
+
+@media(max-width:860px){
+  .about-grid{grid-template-columns:1fr;gap:30px}
+  .skills-grid{grid-template-columns:1fr;gap:30px}
+  nav .links{display:none}
+  nav .links.open{display:flex;position:absolute;top:60px;right:0;left:0;flex-direction:column;background:rgba(10,14,20,.97);padding:20px 28px;gap:18px}
+  .nav-toggle{display:block}
+  .project-card{padding:26px}
+  section{padding:64px 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .reveal{transition:none;opacity:1;transform:none}
+  #neural{display:none}
+  *{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<canvas id="neural"></canvas>
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<nav>
+  <div class="logo">لمى <span>العمودي</span></div>
+  <button class="nav-toggle" aria-label="القائمة">☰</button>
+  <div class="links">
+    <a href="#about">من أنا</a>
+    <a href="#project">المشروع</a>
+    <a href="#skills">المهارات</a>
+    <a href="#journey">المسيرة</a>
+    <a href="#contact">تواصل</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal"><span class="dot"></span> متاحة لفرص جديدة في الذكاء الاصطناعي</div>
+    <h1 class="reveal">مرحباً، أنا <span class="grad">لمى العمودي</span></h1>
+    <div class="role reveal">AI &amp; Deep Learning Engineer</div>
+    <p class="lead reveal">خريجة علوم حاسب، الأولى على دفعة 2025 بمرتبة الشرف الأولى. شغفي أن أحوّل الذكاء الاصطناعي إلى حلول حقيقية تخدم الناس — من كشف الطوارئ لحجاج بيت الله إلى أحدث معماريات الرؤية الحاسوبية.</p>
+    <div class="hero-cta reveal">
+      <a class="btn btn-primary" href="#project">شوف مشروعي ↓</a>
+      <a class="btn btn-ghost" href="#contact">تواصل معي</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat reveal"><div class="num" data-count="4.99">0</div><div class="lbl">المعدل من 5.00</div></div>
+      <div class="stat reveal"><div class="num" data-count="1">0</div><div class="lbl">الأولى على الدفعة</div></div>
+      <div class="stat reveal"><div class="num" data-count="15">0</div><div class="lbl">شهادة احترافية+</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div class="photo-frame reveal">
+        <!-- استبدلي src بصورتك: ضعي ملف photo.jpg بجانب index.html -->
+        <img src="photo.jpg" alt="لمى العمودي" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="photo-placeholder" style="display:none">
+          <div class="ico">📷</div>
+          <div>ضعي صورتك هنا<br><small style="opacity:.7">سمّي الملف <code>photo.jpg</code> وارفعيه بجانب الموقع</small></div>
+        </div>
+      </div>
+      <div class="about-text">
+        <div class="sec-head reveal">
+          <span class="tag">من أنا</span>
+          <h2>فضول لا يتوقف عن السؤال: كيف يعمل هذا؟</h2>
+          <div class="line"></div>
+        </div>
+        <p class="reveal">أنا خريجة <strong>علوم الحاسب</strong> من جامعة طيبة، تخرجت الأولى على دفعتي بمرتبة الشرف الأولى. ما يحركني هو فضول حقيقي لفهم كيف تعمل الأشياء، والتزام دائم بالتعلّم.</p>
+        <p class="reveal">أحب التقنية بكل جوانبها، لكن شغفي الحقيقي هو <strong>الذكاء الاصطناعي</strong> وقدرته على حل مشكلات واقعية — وهذا ما عشته فعلياً في مشروع تخرجي. حالياً أكمّل برنامج تخصص الذكاء الاصطناعي الانتقائي في <strong>أكاديمية كاوست</strong>.</p>
+        <div class="chips reveal">
+          <span class="chip">🧠 التعلم العميق</span>
+          <span class="chip">👁️ الرؤية الحاسوبية</span>
+          <span class="chip">⚡ معالجة البيانات الضخمة</span>
+          <span class="chip">📱 تطوير تطبيقات</span>
+          <span class="chip">🇸🇦 رؤية 2030</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECT -->
+<section id="project">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">مشروع التخرج</span>
+      <h2>أمينين · نظام ذكي لكشف الطوارئ</h2>
+      <div class="line"></div>
+    </div>
+    <div class="project-card reveal">
+      <div class="ptitle">Ameneen — Smart Emergency Detection</div>
+      <div class="psub">نظام كشف طوارئ ذكي لحجاج ومعتمري بيت الله الحرام · 2024 – 2025</div>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="fi">🧠</div>
+          <h4>ذكاء اصطناعي وتعلم عميق</h4>
+          <p>دربت وقارنت نماذج CNN و GRU و LSTM، وحسّنت معمارية LSTM لتحقيق أعلى دقة في كشف السقوط لحظياً.</p>
+        </div>
+        <div class="feat">
+          <div class="fi">⚡</div>
+          <h4>هندسة البيانات الضخمة</h4>
+          <p>استخدمت Apache Kafka لمعالجة تدفق بيانات متزامن من مستخدمين متعددين، لضمان التوسّع مع الحشود الكبيرة.</p>
+        </div>
+        <div class="feat">
+          <div class="fi">📱</div>
+          <h4>تطوير متكامل</h4>
+          <p>بنيت تطبيق أندرويد يعالج حساسات التسارع والدوران ويتتبّع الموقع الجغرافي مباشرة عبر Firebase.</p>
+        </div>
+        <div class="feat">
+          <div class="fi">🚑</div>
+          <h4>استجابة الطوارئ</h4>
+          <p>نظام تنبيه آلي ينقل الملف الصحي والموقع الحي للمسعفين إذا لم يستجب المستخدم.</p>
+        </div>
+      </div>
+      <div class="tech-row">
+        <span class="t">LSTM</span><span class="t">PyTorch</span><span class="t">TensorFlow</span>
+        <span class="t">Apache Kafka</span><span class="t">Android</span><span class="t">Firebase</span>
+      </div>
+      <a class="btn btn-primary" href="#" target="_blank" rel="noopener">شاهدي العرض والتفاصيل ↗</a>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:14px">💡 متوافق مع رؤية السعودية 2030 لإيجاد حلول صحة وسلامة ذكية للفعاليات الكبرى.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">المهارات</span>
+      <h2>الأدوات التي أبني بها</h2>
+      <div class="line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-block reveal">
+        <h3>🛠️ المهارات التقنية</h3>
+        <div class="bar gold"><div class="bhead"><span>Python</span><span class="pct">95%</span></div><div class="track"><div class="fill" data-w="95"></div></div></div>
+        <div class="bar gold"><div class="bhead"><span>Deep Learning · PyTorch / TensorFlow</span><span class="pct">90%</span></div><div class="track"><div class="fill" data-w="90"></div></div></div>
+        <div class="bar gold"><div class="bhead"><span>Computer Vision (YOLO, ResNet, MobileNet)</span><span class="pct">85%</span></div><div class="track"><div class="fill" data-w="85"></div></div></div>
+        <div class="bar gold"><div class="bhead"><span>Machine Learning · Scikit-Learn</span><span class="pct">88%</span></div><div class="track"><div class="fill" data-w="88"></div></div></div>
+        <div class="bar gold"><div class="bhead"><span>Apache Kafka · Big Data</span><span class="pct">78%</span></div><div class="track"><div class="fill" data-w="78"></div></div></div>
+        <div class="bar gold"><div class="bhead"><span>Java · Android · Firebase</span><span class="pct">80%</span></div><div class="track"><div class="fill" data-w="80"></div></div></div>
+      </div>
+      <div class="skill-block reveal">
+        <h3>🤝 المهارات المهنية</h3>
+        <div class="bar"><div class="bhead"><span>حل المشكلات</span><span class="pct">92%</span></div><div class="track"><div class="fill" data-w="92"></div></div></div>
+        <div class="bar"><div class="bhead"><span>التفكير النقدي</span><span class="pct">90%</span></div><div class="track"><div class="fill" data-w="90"></div></div></div>
+        <div class="bar"><div class="bhead"><span>القيادة</span><span class="pct">85%</span></div><div class="track"><div class="fill" data-w="85"></div></div></div>
+        <div class="bar"><div class="bhead"><span>إدارة المشاريع</span><span class="pct">82%</span></div><div class="track"><div class="fill" data-w="82"></div></div></div>
+        <div class="bar"><div class="bhead"><span>التواصل والعمل الجماعي</span><span class="pct">88%</span></div><div class="track"><div class="fill" data-w="88"></div></div></div>
+        <div class="bar"><div class="bhead"><span>القابلية للتكيّف</span><span class="pct">90%</span></div><div class="track"><div class="fill" data-w="90"></div></div></div>
+        <div class="chips" style="margin-top:24px">
+          <span class="chip">🌍 العربية (لغة أم)</span>
+          <span class="chip">🌍 الإنجليزية (ممتازة)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY -->
+<section id="journey">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">المسيرة</span>
+      <h2>التعليم · الخبرة · الشهادات</h2>
+      <div class="line"></div>
+    </div>
+    <div class="tl">
+      <div class="tl-item reveal">
+        <div class="tl-date">2026 · جارية</div>
+        <h4>أكاديمية كاوست — برنامج الذكاء الاصطناعي <span class="badge-dist">المرحلة 4</span></h4>
+        <div class="org">تخصص الذكاء الاصطناعي — Summer Stage 2026</div>
+        <p>برنامج انتقائي متعدد المراحل، تأهلت في كل مرحلة عبر اختبارات نظرية وعملية تنافسية ومقابلة شخصية.</p>
+      </div>
+      <div class="tl-item green reveal">
+        <div class="tl-date">فبراير 2026</div>
+        <h4>الذكاء الاصطناعي المتقدم (المرحلة 3) <span class="badge-dist">امتياز</span></h4>
+        <div class="org">تخصص في الرؤية الحاسوبية و PyTorch — YOLO, ResNet, MobileNet · 40 ساعة</div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-date">يناير 2026</div>
+        <h4>مقدمة في تعلم الآلة والتعلم العميق (المرحلة 2) <span class="badge-dist">امتياز</span></h4>
+        <div class="org">أساسيات ML وخوارزمياته، والتعلم العميق وغير الموجَّه · 40 ساعة</div>
+      </div>
+      <div class="tl-item green reveal">
+        <div class="tl-date">2020 – 2025</div>
+        <h4>بكالوريوس علوم الحاسب — مرتبة الشرف الأولى</h4>
+        <div class="org">جامعة طيبة · معدل 4.99/5.00 · الأولى على دفعة 2025</div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-date">صيف 2024 · 150 ساعة</div>
+        <h4>متدربة في مسار الذكاء الاصطناعي</h4>
+        <div class="org">شركة وادي طيبة — مختبر الذكاء الاصطناعي</div>
+        <p>تدريب مكثّف لشهرين شمل دورات متخصصة ومهام برمجية عملية ومشاريع تعاونية لحل تحديات واقعية.</p>
+      </div>
+      <div class="tl-item green reveal">
+        <div class="tl-date">2017 – 2020</div>
+        <h4>الثانوية العامة</h4>
+        <div class="org">الثانوية التاسعة عشرة بالمدينة المنورة · معدل 99.83/100</div>
+      </div>
+    </div>
+
+    <div class="cert-extra">
+      <div class="cert-mini reveal"><h5>Machine Learning Specialization</h5><p>ستانفورد و DeepLearning.AI — سلسلة من 3 دورات</p></div>
+      <div class="cert-mini reveal"><h5>Google Data Analytics</h5><p>شهادة احترافية — 8 دورات في تحليل البيانات و R</p></div>
+      <div class="cert-mini reveal"><h5>برنامج FUEL — التعلم العميق</h5><p>الشبكات العصبية وتحسين أداء النماذج (DeepLearning.AI)</p></div>
+      <div class="cert-mini reveal"><h5>Google UX &amp; Support</h5><p>أساسيات تصميم تجربة المستخدم والدعم التقني</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap contact">
+    <div class="reveal">
+      <h2>لنبنِ <span class="grad">شيئاً يصنع فرقاً</span></h2>
+      <p>أبحث دائماً عن تحدٍ جديد ومكان أنمو فيه. إذا كنت تبحث عن مهندسة ذكاء اصطناعي شغوفة — تواصل معي.</p>
+      <div class="contact-links">
+        <a class="clink" href="mailto:lamauniversity32@gmail.com"><span class="ci">✉️</span> lamauniversity32@gmail.com</a>
+        <a class="clink" href="tel:+966552561463"><span class="ci">📞</span> 966552561463+</a>
+        <a class="clink" href="https://www.linkedin.com/in/lama-amoudi" target="_blank" rel="noopener"><span class="ci">💼</span> LinkedIn</a>
+        <a class="clink" href="#" target="_blank" rel="noopener"><span class="ci">📂</span> Portfolio</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  صُمّم بشغف · لمى محمد العمودي — المدينة المنورة، المملكة العربية السعودية © 2026
+</footer>
+
+<script>
+/* ---------- Neural network background ---------- */
+(function(){
+  const c = document.getElementById('neural');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  let w,h,nodes,raf;
+  const COUNT = 70;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; }
+  function init(){
+    nodes=[];
+    for(let i=0;i<COUNT;i++){
+      nodes.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4});
+    }
+  }
+  const mouse={x:null,y:null};
+  addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
+  addEventListener('mouseout',()=>{mouse.x=null;mouse.y=null});
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(let i=0;i<nodes.length;i++){
+      const n=nodes[i];
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<0||n.x>w)n.vx*=-1;
+      if(n.y<0||n.y>h)n.vy*=-1;
+      for(let j=i+1;j<nodes.length;j++){
+        const m=nodes[j];
+        const dx=n.x-m.x, dy=n.y-m.y;
+        const d=Math.hypot(dx,dy);
+        if(d<130){
+          const a=(1-d/130)*.5;
+          ctx.strokeStyle='rgba(224,177,94,'+a+')';
+          ctx.lineWidth=.6;
+          ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.stroke();
+        }
+      }
+      if(mouse.x!==null){
+        const dx=n.x-mouse.x, dy=n.y-mouse.y, d=Math.hypot(dx,dy);
+        if(d<160){
+          ctx.strokeStyle='rgba(62,207,142,'+(1-d/160)*.6+')';
+          ctx.lineWidth=.8;
+          ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(mouse.x,mouse.y);ctx.stroke();
+        }
+      }
+      ctx.fillStyle='rgba(240,208,145,.85)';
+      ctx.beginPath();ctx.arc(n.x,n.y,1.6,0,Math.PI*2);ctx.fill();
+    }
+    raf=requestAnimationFrame(draw);
+  }
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  resize(); init();
+  if(!reduce) draw();
+  addEventListener('resize',()=>{resize();init()});
+})();
+
+/* ---------- Reveal on scroll ---------- */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('show');
+      // bars
+      e.target.querySelectorAll('.fill[data-w]').forEach(f=>{f.style.width=f.dataset.w+'%'});
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*60)+'ms';io.observe(el)});
+
+/* ---------- Count up ---------- */
+function countUp(el){
+  const target=parseFloat(el.dataset.count);
+  const dec=(target%1!==0)?2:0;
+  let cur=0; const step=target/50;
+  const t=setInterval(()=>{
+    cur+=step;
+    if(cur>=target){cur=target;clearInterval(t)}
+    el.textContent=cur.toFixed(dec);
+  },24);
+}
+const ioStat=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){countUp(e.target);ioStat.unobserve(e.target)}});
+},{threshold:.6});
+document.querySelectorAll('[data-count]').forEach(el=>ioStat.observe(el));
+
+/* ---------- Mobile nav ---------- */
+const tog=document.querySelector('.nav-toggle'), lnk=document.querySelector('.links');
+tog.addEventListener('click',()=>lnk.classList.toggle('open'));
+lnk.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>lnk.classList.remove('open')));
+</script>
+</body>
+</html>
